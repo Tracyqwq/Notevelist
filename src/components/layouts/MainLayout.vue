@@ -102,6 +102,7 @@ interface TreeNode {
   title: string
   children?: TreeNode[]
   isLeaf?: boolean
+  [key: string]: unknown
 }
 
 const worldTreeData = computed<TreeNode[]>(() => {

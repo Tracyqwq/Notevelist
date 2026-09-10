@@ -181,19 +181,20 @@ async function onExport() {
   message.success('已导出备份')
 }
 
-async function onImport(file: { file: File }) {
+async function onImport(data: { file: any }) {
+  const file = data.file.file as File
   const reader = new FileReader()
   reader.onload = async (e) => {
     try {
-      const data: ExportData = JSON.parse(e.target?.result as string)
-      await importAll(data)
+      const importData: ExportData = JSON.parse(e.target?.result as string)
+      await importAll(importData)
       message.success('导入成功，刷新页面以加载')
       setTimeout(() => location.reload(), 1000)
     } catch {
       message.error('导入失败：文件格式不正确')
     }
   }
-  reader.readAsText(file.file)
+  reader.readAsText(file)
   return false
 }
 </script>
