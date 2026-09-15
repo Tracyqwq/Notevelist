@@ -78,17 +78,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h } from 'vue'
+import { ref, computed, h, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NInput, NTree, NModal, NSpace, useMessage } from 'naive-ui'
 import { useWorldStore } from '../../stores/world'
 import { useFragmentStore } from '../../stores/fragment'
+import { useErrorStore } from '../../stores/error'
 import type { World } from '../../db/database'
 
 const router = useRouter()
 const message = useMessage()
 const worldStore = useWorldStore()
 const fragmentStore = useFragmentStore()
+const errorStore = useErrorStore()
+
+// 监听全局错误，弹出提示
+watch(
+  () => errorStore.errorId,
+  () => {
+    if (errorStore.lastError) {
+      message.error(errorStore.lastError)
+    }
+  }
+)
 
 const showCreateWorld = ref(false)
 const newWorldTitle = ref('')
@@ -130,10 +142,11 @@ async function onCreateWorld() {
     message.warning('请输入世界观名称')
     return
   }
-  await worldStore.createWorld({
+  const id = await worldStore.createWorld({
     title: newWorldTitle.value,
     description: newWorldDesc.value,
   })
+  if (!id) return // 创建失败，错误已由全局 errorStore 弹出
   message.success('世界观已创建')
   showCreateWorld.value = false
   newWorldTitle.value = ''
@@ -150,11 +163,12 @@ async function onQuickFragment() {
     return
   }
 
-  await fragmentStore.createFragment({
+  const id = await fragmentStore.createFragment({
     worldId,
     content: text,
     title: text.slice(0, 20) + (text.length > 20 ? '...' : ''),
   })
+  if (!id) return // 创建失败，错误已由全局 errorStore 弹出
 
   quickFragment.value = ''
   message.success('碎片已贴上')

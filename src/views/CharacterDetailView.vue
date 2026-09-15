@@ -196,13 +196,14 @@ async function onSaveArc() {
     return
   }
   const s = storyStore.stories.find((x) => x.id === arcForm.value.storyId)
-  await characterStore.createArc({
+  const id = await characterStore.createArc({
     characterId: charId.value,
     storyId: arcForm.value.storyId,
     worldId: s?.worldId || '',
     summary: arcForm.value.summary,
     changes: arcForm.value.changes,
   })
+  if (!id) return // 创建失败，错误已由全局 errorStore 弹出
   message.success('发展线已添加')
   showArcForm.value = false
   arcForm.value = { storyId: '', summary: '', changes: '' }
@@ -213,12 +214,13 @@ async function onSaveRel() {
     message.warning('请选择角色')
     return
   }
-  await characterStore.createRelation({
+  const id = await characterStore.createRelation({
     characterAId: charId.value,
     characterBId: relForm.value.otherCharId,
     relationType: relForm.value.relationType,
     description: relForm.value.description,
   })
+  if (!id) return // 创建失败，错误已由全局 errorStore 弹出
   message.success('关系已添加')
   showRelForm.value = false
   relForm.value = { otherCharId: '', relationType: '', description: '' }

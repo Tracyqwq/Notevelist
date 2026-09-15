@@ -128,6 +128,7 @@ async function onCreateStory() {
     worldId: worldId.value,
     title: newStoryTitle.value,
   })
+  if (!id) return // 创建失败，错误已由全局 errorStore 弹出
   message.success('故事已创建')
   showCreateStory.value = false
   newStoryTitle.value = ''

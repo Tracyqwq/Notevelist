@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { db, genId, now, type Fragment } from '../db/database'
+import { useErrorStore } from './error'
 
 export const useFragmentStore = defineStore('fragment', () => {
+  const errorStore = useErrorStore()
   const fragments = ref<Fragment[]>([])
   const loading = ref(false)
 
@@ -32,39 +34,52 @@ export const useFragmentStore = defineStore('fragment', () => {
   }
 
   async function createFragment(data: Partial<Fragment>): Promise<string> {
-    const id = genId()
-    const ts = now()
-    const maxOrder = fragments.value.length
-    const frag: Fragment = {
-      id,
-      worldId: data.worldId || '',
-      storyId: data.storyId || null,
-      title: data.title || '',
-      content: data.content || '',
-      tags: data.tags || [],
-      linkedCharacterIds: data.linkedCharacterIds || [],
-      linkedFragmentIds: data.linkedFragmentIds || [],
-      status: 'loose',
-      color: data.color || FRAGMENT_COLORS[maxOrder % FRAGMENT_COLORS.length],
-      order: maxOrder,
-      createdAt: ts,
-      updatedAt: ts,
+    try {
+      const id = genId()
+      const ts = now()
+      const maxOrder = fragments.value.length
+      const frag: Fragment = {
+        id,
+        worldId: data.worldId || '',
+        storyId: data.storyId || null,
+        title: data.title || '',
+        content: data.content || '',
+        tags: data.tags || [],
+        linkedCharacterIds: data.linkedCharacterIds || [],
+        linkedFragmentIds: data.linkedFragmentIds || [],
+        status: 'loose',
+        color: data.color || FRAGMENT_COLORS[maxOrder % FRAGMENT_COLORS.length],
+        order: maxOrder,
+        createdAt: ts,
+        updatedAt: ts,
+      }
+      await db.fragments.add(frag)
+      fragments.value.unshift(frag)
+      return id
+    } catch (e) {
+      errorStore.reportError('创建碎片失败', e)
+      return ''
     }
-    await db.fragments.add(frag)
-    fragments.value.unshift(frag)
-    return id
   }
 
   async function updateFragment(id: string, patch: Partial<Fragment>) {
-    const patchData = { ...patch, updatedAt: now() }
-    await db.fragments.update(id, patchData)
-    const idx = fragments.value.findIndex((f) => f.id === id)
-    if (idx >= 0) fragments.value[idx] = { ...fragments.value[idx], ...patchData }
+    try {
+      const patchData = { ...patch, updatedAt: now() }
+      await db.fragments.update(id, patchData)
+      const idx = fragments.value.findIndex((f) => f.id === id)
+      if (idx >= 0) fragments.value[idx] = { ...fragments.value[idx], ...patchData }
+    } catch (e) {
+      errorStore.reportError('更新碎片失败', e)
+    }
   }
 
   async function deleteFragment(id: string) {
-    await db.fragments.delete(id)
-    fragments.value = fragments.value.filter((f) => f.id !== id)
+    try {
+      await db.fragments.delete(id)
+      fragments.value = fragments.value.filter((f) => f.id !== id)
+    } catch (e) {
+      errorStore.reportError('删除碎片失败', e)
+    }
   }
 
   async function pasteToStory(fragmentId: string, storyId: string) {

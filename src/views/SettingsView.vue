@@ -8,11 +8,11 @@
       <NSpace vertical>
         <NInput
           v-model:value="ghConfig.owner"
-          placeholder="GitHub 用户名（如 Tracyqwq）"
+          placeholder="GitHub 用户名"
         />
         <NInput
           v-model:value="ghConfig.repo"
-          placeholder="仓库名（如 Notevelist）"
+          placeholder="仓库名"
         />
         <NInput
           v-model:value="ghConfig.token"

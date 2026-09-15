@@ -84,11 +84,12 @@ async function onCreate() {
     message.warning('请输入角色名')
     return
   }
-  await characterStore.createCharacter({
+  const id = await characterStore.createCharacter({
     name: newChar.value.name,
     traits: newChar.value.traits.split(',').map((t) => t.trim()).filter(Boolean),
     description: newChar.value.description,
   })
+  if (!id) return // 创建失败，错误已由全局 errorStore 弹出
   message.success('角色已创建')
   showCreate.value = false
   newChar.value = { name: '', traits: '', description: '' }

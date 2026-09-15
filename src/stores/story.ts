@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { db, genId, now, type Story } from '../db/database'
+import { useErrorStore } from './error'
 
 export const useStoryStore = defineStore('story', () => {
+  const errorStore = useErrorStore()
   const stories = ref<Story[]>([])
   const currentStoryId = ref<string | null>(null)
   const loading = ref(false)
@@ -21,39 +23,52 @@ export const useStoryStore = defineStore('story', () => {
   }
 
   async function createStory(data: Partial<Story>): Promise<string> {
-    const id = genId()
-    const ts = now()
-    const maxOrder = stories.value.length
-    const story: Story = {
-      id,
-      worldId: data.worldId || '',
-      title: data.title || '新故事',
-      content: '',
-      status: 'draft',
-      order: maxOrder,
-      createdAt: ts,
-      updatedAt: ts,
+    try {
+      const id = genId()
+      const ts = now()
+      const maxOrder = stories.value.length
+      const story: Story = {
+        id,
+        worldId: data.worldId || '',
+        title: data.title || '新故事',
+        content: '',
+        status: 'draft',
+        order: maxOrder,
+        createdAt: ts,
+        updatedAt: ts,
+      }
+      await db.stories.add(story)
+      stories.value.push(story)
+      return id
+    } catch (e) {
+      errorStore.reportError('创建故事失败', e)
+      return ''
     }
-    await db.stories.add(story)
-    stories.value.push(story)
-    return id
   }
 
   async function updateStory(id: string, patch: Partial<Story>) {
-    const patchData = { ...patch, updatedAt: now() }
-    await db.stories.update(id, patchData)
-    const idx = stories.value.findIndex((s) => s.id === id)
-    if (idx >= 0) stories.value[idx] = { ...stories.value[idx], ...patchData }
+    try {
+      const patchData = { ...patch, updatedAt: now() }
+      await db.stories.update(id, patchData)
+      const idx = stories.value.findIndex((s) => s.id === id)
+      if (idx >= 0) stories.value[idx] = { ...stories.value[idx], ...patchData }
+    } catch (e) {
+      errorStore.reportError('保存故事失败', e)
+    }
   }
 
   async function deleteStory(id: string) {
-    // Unpin fragments linked to this story
-    const frags = await db.fragments.where('storyId').equals(id).toArray()
-    for (const frag of frags) {
-      await db.fragments.update(frag.id, { storyId: null, status: 'loose' })
+    try {
+      // Unpin fragments linked to this story
+      const frags = await db.fragments.where('storyId').equals(id).toArray()
+      for (const frag of frags) {
+        await db.fragments.update(frag.id, { storyId: null, status: 'loose' })
+      }
+      await db.stories.delete(id)
+      stories.value = stories.value.filter((s) => s.id !== id)
+    } catch (e) {
+      errorStore.reportError('删除故事失败', e)
     }
-    await db.stories.delete(id)
-    stories.value = stories.value.filter((s) => s.id !== id)
   }
 
   function selectStory(id: string | null) {
@@ -72,6 +87,3 @@ export const useStoryStore = defineStore('story', () => {
     selectStory,
   }
 })
-
-// Need to import computed
-import { computed } from 'vue'
