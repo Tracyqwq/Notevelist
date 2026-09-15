@@ -32,10 +32,10 @@ export const useWorldStore = defineStore('world', () => {
   async function createWorld(data: Partial<World>): Promise<string> {
     const id = genId()
     const ts = now()
-    const maxOrder = await db.worlds
-      .where('parentId')
-      .equals(data.parentId || null as any)
-      .count()
+
+    // Count existing worlds with the same parentId (avoid Dexie null query issues)
+    const siblings = worlds.value.filter((w) => w.parentId === (data.parentId || null))
+    const maxOrder = siblings.length
 
     const world: World = {
       id,
