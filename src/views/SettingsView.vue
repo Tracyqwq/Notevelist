@@ -2,6 +2,20 @@
   <div class="settings-view">
     <h2>设置</h2>
 
+    <!-- Appearance -->
+    <div class="settings-section">
+      <h3>外观</h3>
+      <NRadioGroup
+        :value="themeStore.mode"
+        @update:value="(v: string | number) => themeStore.setMode(v as ThemeMode)"
+      >
+        <NRadioButton value="light">日间</NRadioButton>
+        <NRadioButton value="dark">夜间</NRadioButton>
+        <NRadioButton value="system">随系统</NRadioButton>
+      </NRadioGroup>
+      <p class="section-hint">日间是纸质感手账，夜间是灵感星空。</p>
+    </div>
+
     <!-- GitHub Sync -->
     <div class="settings-section">
       <h3>GitHub 同步</h3>
@@ -54,10 +68,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { NInput, NButton, NSpace, NUpload, NAlert, useMessage } from 'naive-ui'
+import { NInput, NButton, NSpace, NUpload, NAlert, NRadioGroup, NRadioButton, useMessage } from 'naive-ui'
 import { exportAll, importAll, type ExportData } from '../db/database'
+import { useThemeStore, type ThemeMode } from '../stores/theme'
 
 const message = useMessage()
+const themeStore = useThemeStore()
 
 const ghConfig = ref({ owner: '', repo: '', token: '' })
 const syncing = ref(false)
@@ -209,5 +225,6 @@ async function onImport(data: { file: any }) {
   border: 1px solid var(--border-color);
 }
 .settings-section h3 { margin-bottom: 16px; }
+.section-hint { margin-top: 12px; font-size: 12px; color: var(--text-muted); }
 .about-text { color: var(--text-secondary); line-height: 1.8; }
 </style>

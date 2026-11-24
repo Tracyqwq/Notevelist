@@ -198,9 +198,10 @@ async function onQuickFragment() {
   border-bottom: 1px solid var(--border-color);
 }
 .logo {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--accent-light);
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 500;
+  color: var(--accent);
 }
 
 .sidebar-section {
@@ -211,10 +212,9 @@ async function onQuickFragment() {
   justify-content: space-between;
   align-items: center;
   padding: 0 8px 8px;
-  font-size: 12px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 
 .sidebar-bottom {

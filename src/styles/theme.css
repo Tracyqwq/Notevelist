@@ -1,0 +1,211 @@
+/* ===== Notevelist 主题系统 =====
+ * 日间 = 纸质手账（暖米纸底 + 墨色文字 + 钢笔蓝/朱砂点缀）
+ * 夜间 = 星空（深蓝夜空 + 星光文字 + 星光金/星云紫点缀）
+ * 通过 <html data-theme="dark"> 切换夜间主题，默认（无属性）为日间。
+ */
+
+:root {
+  /* 日间 · 纸质感 */
+  --bg-primary: #f6f1e7;
+  --bg-secondary: #efe8d8;
+  --bg-tertiary: #e7dec8;
+  --bg-hover: #ddd2b8;
+  --border-color: #d8cfbc;
+  --text-primary: #3d3629;
+  --text-secondary: #6b6250;
+  --text-muted: #9a8f7a;
+  --accent: #4a6fa5;
+  --accent-hover: #3d5a80;
+  --accent-light: #6b8fbf;
+  --success: #5a8a5a;
+  --warning: #b98a2e;
+  --danger: #c1443b;
+  --code-bg: #ede6d6;
+  --shadow: 0 2px 6px rgba(61, 54, 41, 0.12);
+  --shadow-hover: 0 4px 12px rgba(61, 54, 41, 0.2);
+
+  /* 便签纸片色（日夜间一致，柔和彩色） */
+  --memo-yellow: #f7e9b8;
+  --memo-pink: #f5d6d6;
+  --memo-blue: #d6e4f0;
+  --memo-green: #d8e8d8;
+  --memo-orange: #f5dfc6;
+  --memo-purple: #e0d6ec;
+
+  /* 手写体字体 */
+  --font-display: 'STXingkai', '华文行楷', 'KaiTi', 'STKaiti', 'SimSun', serif;
+  --font-body: 'FZShuTi', '方正舒体', 'STXingkai', '华文行楷', 'KaiTi', 'STKaiti', serif;
+}
+
+[data-theme='dark'] {
+  /* 夜间 · 星空 */
+  --bg-primary: #0e1220;
+  --bg-secondary: #141a2e;
+  --bg-tertiary: #1a2033;
+  --bg-hover: #232b45;
+  --border-color: #2a3350;
+  --text-primary: #e4e8f4;
+  --text-secondary: #a8b0c4;
+  --text-muted: #6a7488;
+  --accent: #e8c56b;
+  --accent-hover: #f0d588;
+  --accent-light: #e8c56b;
+  --success: #6bc07a;
+  --warning: #e8c56b;
+  --danger: #e27d7d;
+  --code-bg: #141a2e;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.65);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+#app {
+  height: 100%;
+}
+
+/* 标题统一手写体（华文行楷），营造手账标题感 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
+a {
+  color: var(--accent-light);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover {
+  color: var(--accent);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-hover);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Memo card styles（便签纸片） */
+.memo-card {
+  position: relative;
+  padding: 12px 14px;
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  overflow: hidden;
+}
+.memo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+.memo-card .memo-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #1a1a1a;
+}
+.memo-card .memo-content {
+  font-size: 13px;
+  color: #333;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 120px;
+  overflow: hidden;
+}
+.memo-card .memo-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+.memo-card .memo-tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.12);
+  color: #1a1a1a;
+}
+.memo-card .memo-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  font-size: 10px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  text-align: center;
+  gap: 12px;
+}
+
+/* Editor styles */
+.story-editor .ProseMirror {
+  min-height: 60vh;
+  padding: 24px 32px;
+  outline: none;
+  font-size: 16px;
+  line-height: 1.8;
+  font-family: var(--font-body);
+}
+.story-editor .ProseMirror p {
+  margin-bottom: 1em;
+}
+.story-editor .ProseMirror h1 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.9em;
+  margin: 0.8em 0 0.5em;
+}
+.story-editor .ProseMirror h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.5em;
+  margin: 0.6em 0 0.4em;
+}
+.story-editor .ProseMirror blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 16px;
+  margin: 1em 0;
+  color: var(--text-secondary);
+}
